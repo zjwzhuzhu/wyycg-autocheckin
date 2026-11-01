@@ -11,20 +11,23 @@ jobs:
     steps:
       - name: 'Checkout codes'
         uses: actions/checkout@v2
-      
+
       - name: 'Avoid Github Workflow being suspended'
         run: echo $(cat /proc/sys/kernel/random/uuid) > UUID.txt
-      
+
+      # 2026-11-01 调整：保活属于运维动作，失败只记日志、不判定任务失败，避免失败邮件噪音
       - name: 'Commit Files'
         id: commit
+        continue-on-error: true
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
           git diff --quiet && git diff --staged --quiet || git commit -am '是否继续白嫖：[是] —— 继续白嫖成功！'
           echo ::set-output name=status::success
-           
+
       - name: 'GitHub Push'
+        continue-on-error: true
         if: steps.commit.output.status != 'success'
         uses: ad-m/github-push-action@v0.6.0
         with:
