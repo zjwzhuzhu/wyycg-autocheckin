@@ -10,12 +10,15 @@ jobs:
     steps:
       - name: 'Checkout codes'
         uses: actions/checkout@v2
-      
+
+      # 2026-11-01 调整：镜像同步目标是第三方 Gitea（git.bili33.top），当前返回 502 且未配置
+      # GITEA_USERNAME/GITEA_PASSWORD，每次 push 必失败。与签到无关，标记 continue-on-error
+      # 避免持续产生失败邮件；配置好密钥后会自动恢复同步。
       - name: 'Sync'
         id: commit
+        continue-on-error: true
         run: |
           git fetch --unshallow
           git checkout master
-          git remote add gitea https://${{ secrets.GITEA_USERNAME }}:${{ secrets.GITEA_PASSWORD }}@git.bili33.top/GamerNoTitle/wyycg-AutoCheckin.git   
-          git push gitea master          
-
+          git remote add gitea https://${{ secrets.GITEA_USERNAME }}:${{ secrets.GITEA_PASSWORD }}@git.bili33.top/GamerNoTitle/wyycg-AutoCheckin.git
+          git push gitea master
